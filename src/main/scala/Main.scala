@@ -26,7 +26,7 @@ object Main extends IOApp {
         "org.postgresql.Driver", // driver classname
         "jdbc:postgresql:world", // connect URL (driver-specific)
         "postgres", // user
-        "" // password
+        "postgres" // password
       )
       val result = program1
         .transact(xa)
