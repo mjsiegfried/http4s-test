@@ -1,10 +1,7 @@
 import cats.effect.IO
-import cats.implicits.catsSyntaxApplicativeId
-import doobie.ConnectionIO
+import doobie.implicits._
 import doobie.util.transactor.Transactor
 import org.typelevel.log4cats.Logger
-
-import doobie.implicits._
 
 object DatabaseContractImpl {
 
