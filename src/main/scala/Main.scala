@@ -21,9 +21,15 @@ object Main extends IOApp {
       val result = client.expect[String](target)
       Ok(result)
     case GET -> Root / "db" =>
-      databaseContract.getCountry()
+      databaseContract.getCountry
         .map(country => Ok(country.toString))
-        .leftMap(error => InternalServerError(error.msg)).value.flatMap(_.merge)
+        .leftMap {
+          case DatabaseError.ObjectNotFoundError(msg) =>
+            Ok(s"Object not found $msg")
+          case DatabaseError.UnknownDatabaseError(msg) =>
+            InternalServerError(msg)
+
+        }.value.flatMap(_.merge)
     case GET -> Root / "hello" / name =>
       Ok(s"Hello, $name.")
 
