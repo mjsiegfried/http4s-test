@@ -17,27 +17,6 @@ import io.circe.generic.auto._
 
 object Main extends IOApp with Serde {
 
-  def helloWorldService(client: Client[IO])(implicit databaseContract: DatabaseContract, logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
-    case GET -> Root =>
-      val target = uri"http://localhost:8080/hello/" / "Bob"
-      val result = client.expect[String](target)
-      Ok(result)
-    case GET -> Root / "getFirst" =>
-      databaseContract.getCountry
-        .map(country => Ok(country.asJson.noSpaces))
-        .leftMap {
-          case DatabaseError.ObjectNotFoundError(msg) =>
-            Ok(s"Object not found $msg")
-          case DatabaseError.UnknownDatabaseError(msg) =>
-            InternalServerError(msg)
-
-        }.value.flatMap(_.merge)
-    case GET -> Root / "hello" / name =>
-      Ok(s"Hello, $name.")
-
-
-  }.orNotFound
-
   def run(args: List[String]): IO[ExitCode] =
     EmberClientBuilder.default[IO].build.use { client =>
 
@@ -55,7 +34,7 @@ object Main extends IOApp with Serde {
         .default[IO]
         .withHost(ipv4"0.0.0.0")
         .withPort(port"8080")
-        .withHttpApp(helloWorldService(client))
+        .withHttpApp(Server.helloWorldService(client))
         .build
         .use(_ => IO.never)
         .as(ExitCode.Success)
