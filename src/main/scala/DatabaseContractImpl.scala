@@ -1,4 +1,7 @@
+import DatabaseContract.{Country, DatabaseError}
+import cats.data.EitherT
 import cats.effect.IO
+import cats.implicits.catsSyntaxEitherId
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import org.typelevel.log4cats.Logger
@@ -6,15 +9,19 @@ import org.typelevel.log4cats.Logger
 object DatabaseContractImpl {
 
   def jdbcDatabaseContract(implicit xa: Transactor.Aux[IO, Unit], logger: Logger[IO]) = new DatabaseContract {
-    override def foo(): IO[String] = {
-      val query = sql"select name from country"
-        .query[String].to[List]
+    override def getCountry(): EitherT[IO, DatabaseError, Country] = {
 
-      query
-        .transact(xa)
-        .map(_.headOption.getOrElse("Nothing found."))
-        .handleErrorWith(err => logger.error(err.toString)
-          .map(_ => err.toString))
+      val query = sql"select code, name, population, gnp from country"
+        .query[Country]
+        .to[List]
+
+      EitherT(
+        query
+          .transact(xa)
+          .map(_.headOption.map(_.asRight[DatabaseError])
+            .getOrElse(DatabaseError("Country not found").asLeft[Country]))
+          .handleErrorWith(err => logger.error(err.toString)
+            .map(_ => DatabaseError(s"Database error $err").asLeft[Country])))
 
     }
   }
