@@ -1,4 +1,4 @@
-import DatabaseContract.{Country, DatabaseError}
+import DatabaseContract.Country
 import DatabaseError.{DatabaseError, ObjectNotFoundError, UnknownDatabaseError}
 import cats.data.EitherT
 import cats.effect.IO

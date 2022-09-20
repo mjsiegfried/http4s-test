@@ -3,6 +3,7 @@ import cats.effect._
 import com.comcast.ip4s.IpLiteralSyntax
 import doobie.Transactor
 import doobie.util.transactor.Transactor.Aux
+import io.circe.Decoder
 import org.http4s._
 import org.http4s.client.Client
 import org.http4s.dsl.io._
@@ -11,18 +12,19 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import org.typelevel.log4cats.{Logger, SelfAwareStructuredLogger}
+import io.circe.syntax.EncoderOps
+import io.circe.generic.auto._
 
-object Main extends IOApp {
-
+object Main extends IOApp with Serde {
 
   def helloWorldService(client: Client[IO])(implicit databaseContract: DatabaseContract, logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root =>
       val target = uri"http://localhost:8080/hello/" / "Bob"
       val result = client.expect[String](target)
       Ok(result)
-    case GET -> Root / "db" =>
+    case GET -> Root / "getFirst" =>
       databaseContract.getCountry
-        .map(country => Ok(country.toString))
+        .map(country => Ok(country.asJson.noSpaces))
         .leftMap {
           case DatabaseError.ObjectNotFoundError(msg) =>
             Ok(s"Object not found $msg")
