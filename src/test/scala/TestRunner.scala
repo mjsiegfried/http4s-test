@@ -4,8 +4,6 @@ import cats.data.EitherT
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.implicits.{catsSyntaxApplicativeId, catsSyntaxEitherId, toTraverseOps}
 import com.comcast.ip4s.IpLiteralSyntax
-import doobie.Transactor
-import doobie.util.transactor.Transactor.Aux
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.typelevel.log4cats.SelfAwareStructuredLogger
