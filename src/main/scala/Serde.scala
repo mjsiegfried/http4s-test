@@ -1,6 +1,6 @@
 import DatabaseContract.Country
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
 trait Serde {
 
