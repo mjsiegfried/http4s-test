@@ -7,6 +7,8 @@ object TestRunner extends IOApp {
     val allTestSuites = List(
       SerdeTest.tests()
     )
+
+    allTestSuites
       .sequence
       .map(_
         .map(testSuite => {
@@ -15,8 +17,7 @@ object TestRunner extends IOApp {
             System.out.println(s"  ${test.name} : ${test.result}")
           })
         }))
-
-
-    allTestSuites.value.map(_ => ExitCode(0))
+      .value
+      .map(_ => ExitCode(0))
   }
 }
