@@ -63,6 +63,8 @@ object HttpTest {
   def tests(implicit client: Client[IO]): EitherT[IO, TestError, TestSuite] = {
     List(
       testMainEndpoint,
+      testMovieEndpoint,
+      testSeriesEndpoint
     ).sequence.map(tests => TestSuite("HttpTest", tests))
 
   }

@@ -15,7 +15,6 @@ object Server extends TubiApi {
 
   def tubiService()(implicit logger: Logger[IO], client: Client[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
-
       val apiResult = fetchContentSortedByTag(0, "movie")
         .map(contentResponse => Ok(contentResponse.asJson.noSpaces.pure[IO]))
         .leftMap(error => Ok(error.msg.pure[IO]))
@@ -28,5 +27,34 @@ object Server extends TubiApi {
       )(apiResult)
 
 
+    case GET -> Root / "tubi" / "movie" =>
+
+      val apiResult = fetchContentSortedByTag(0, "movie")
+        .map(contentResponse => Ok(contentResponse.asJson.noSpaces.pure[IO]))
+        .leftMap(error => Ok(error.msg.pure[IO]))
+        .merge
+        .flatten
+
+      retryingOnAllErrors[Response[IO]](
+        policy = RetryPolicies.limitRetriesByCumulativeDelay(6.seconds, RetryPolicies.constantDelay[IO](2.seconds)),
+        onError = (err: Throwable, details: RetryDetails) => logger.info(s"Retrying request due to $err, Details: $details...")
+      )(apiResult)
+
+    case GET -> Root / "tubi" / "series" =>
+
+      val apiResult = fetchContentSortedByTag(0, "series")
+        .map(contentResponse => Ok(contentResponse.asJson.noSpaces.pure[IO]))
+        .leftMap(error => Ok(error.msg.pure[IO]))
+        .merge
+        .flatten
+
+      retryingOnAllErrors[Response[IO]](
+        policy = RetryPolicies.limitRetriesByCumulativeDelay(6.seconds, RetryPolicies.constantDelay[IO](2.seconds)),
+        onError = (err: Throwable, details: RetryDetails) => logger.info(s"Retrying request due to $err, Details: $details...")
+      )(apiResult)
+
   }.orNotFound
+
+
+
 }
