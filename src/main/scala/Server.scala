@@ -16,43 +16,14 @@ import retry.{RetryDetails, RetryPolicies, retryingOnAllErrors}
 
 import scala.concurrent.duration.DurationInt
 
-object Server extends Serde {
+object Server extends TubiApi {
 
-  def tubiService(client: Client[IO])(implicit logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
+  def tubiService()(implicit logger: Logger[IO], client: Client[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
-      val request = GET(
-        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movi",
-        Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
-        Accept(MediaType.application.json)
-      )
-
-      val result = client.expect[String](request).flatMap { response =>
-        parser.parse(response).getOrElse(Json.Null).as[ContentResponse] match {
-          case Left(value) => InternalServerError(s"Failed to parse response into class: $response Error: $value")
-          case Right(value) => Ok(value.items.asJson.noSpaces)
-        }
-      }
-      retryingOnAllErrors[Response[IO]](
-        policy =  RetryPolicies.limitRetriesByCumulativeDelay(6.seconds,RetryPolicies.constantDelay[IO](2.seconds)),
-        onError = (err: Throwable, details: RetryDetails) => logger.info(s"Retrying request due to $err, Details: $details...")
-      )(result)
-
+     fetchAllContent()
 
     case GET -> Root / "genre" =>
-      val request = GET(
-        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/genre/action",
-        Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
-        Accept(MediaType.application.json)
-      )
-
-      val result = client.expect[String](request).flatMap { response =>
-        parser.parse(response).getOrElse(Json.Null).as[ContentResponse] match {
-          case Left(value) => InternalServerError(s"Failed to parse response into class: $response Error: $value")
-          case Right(value) => Ok(value.items.asJson.noSpaces)
-        }
-      }
-
-      result
+     fetchContentByGenre()
 
   }.orNotFound
 }

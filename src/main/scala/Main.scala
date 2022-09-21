@@ -10,12 +10,13 @@ object Main extends IOApp with Serde {
   def run(args: List[String]): IO[ExitCode] =
     EmberClientBuilder.default[IO].build.use { client =>
       implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
+      implicit val http = client
 
       EmberServerBuilder
         .default[IO]
         .withHost(ipv4"0.0.0.0")
         .withPort(port"8080")
-        .withHttpApp(Server.tubiService(client))
+        .withHttpApp(Server.tubiService())
         .build
         .use(_ => IO.never)
         .as(ExitCode.Success)
