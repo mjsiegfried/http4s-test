@@ -17,7 +17,7 @@ object SerdeTest extends Serde {
 
   val testContentIsSymmetrical: EitherT[IO, TestError, Test] = {
     val testContent: Video = Video(
-      "", 1, "", 1, List.empty, "", "", "", 9, List.empty, "", ""
+      "foo", 1, "bar", 1, List.empty, "baz", "a", "b", 9, List.empty, "c", "d"
     )
     EitherT(Test("Test Content Serde is symmetrical", testParsingSymmetry(testContent)).asRight[TestError].pure[IO])
   }

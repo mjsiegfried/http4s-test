@@ -15,10 +15,10 @@ import org.typelevel.log4cats.Logger
 
 trait TubiApi extends Serde {
 
-  def fetchContentByPage(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
+  def fetchContentByPage(page: Int, contentType: String)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
     val request = GET(
       //todo -- clean up this uri parsing
-      Uri.fromString(s"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=$page&size=100&type=movie").getOrElse(uri""),
+      Uri.fromString(s"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=$page&size=100&type=$contentType").getOrElse(uri""),
       Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
       Accept(MediaType.application.json)
     )
@@ -31,9 +31,9 @@ trait TubiApi extends Serde {
     })
   }
 
-  def fetchContentSortedByTag(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, SortedContentResponse] = {
-    fetchContentByPage(page).map(contentResponse => {
-      sortContentByTag(contentResponse.items)
+  def fetchContentSortedByTag(page: Int, contentType: String)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, SortedContentResponse] = {
+    fetchContentByPage(page, contentType).map(contentResponse => {
+      sortContentByFirstTag(contentResponse.items)
     })
   }
 
