@@ -1,8 +1,8 @@
 object DataModel {
 
-  case class ContentResponse(count: Int, items: List[Content])
+  case class ContentResponse(count: Int, items: List[Video])
 
-  case class Content(
+  case class Video(
                       description: String,
                       duration_ms: Long,
                       genre: String,

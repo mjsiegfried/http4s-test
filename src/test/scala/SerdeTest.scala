@@ -1,4 +1,4 @@
-import DataModel.Content
+import DataModel.Video
 import TestModel._
 import cats.data.EitherT
 import cats.effect.IO
@@ -16,7 +16,7 @@ object SerdeTest extends Serde {
   }
 
   val testContentIsSymmetrical: EitherT[IO, TestError, Test] = {
-    val testContent: Content = Content(
+    val testContent: Video = Video(
       "", 1, "", 1, List.empty, "", "", "", 9, List.empty, "", ""
     )
     EitherT(Test("Test Content Serde is symmetrical", testParsingSymmetry(testContent)).asRight[TestError].pure[IO])

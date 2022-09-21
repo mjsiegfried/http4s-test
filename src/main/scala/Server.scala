@@ -32,5 +32,21 @@ object Server extends Serde {
 
       result
 
+    case GET -> Root / "genre"  =>
+      val request = GET(
+        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/genre/",
+        Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
+        Accept(MediaType.application.json)
+      )
+
+      val result = client.expect[String](request).flatMap { response =>
+        parser.parse(response).getOrElse(Json.Null).as[ContentResponse] match {
+          case Left(value) => InternalServerError(s"Failed to parse response into class: $response Error: $value")
+          case Right(value) => Ok(value.items.asJson.noSpaces)
+        }
+      }
+
+      result
+
   }.orNotFound
 }
