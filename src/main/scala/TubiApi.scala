@@ -1,5 +1,5 @@
 
-import DataModel.{ContentResponse, TubiError, UnknownTubiError}
+import DataModel.{ContentResponse, SortedContentResponse, TubiError, UnknownTubiError, Video}
 import cats.data.EitherT
 import cats.effect.IO
 import cats.implicits.catsSyntaxEitherId
@@ -17,6 +17,7 @@ trait TubiApi extends Serde {
 
   def fetchContentByPage(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
     val request = GET(
+      //todo -- clean up this uri parsing
       Uri.fromString(s"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=$page&size=100&type=movie").getOrElse(uri""),
       Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
       Accept(MediaType.application.json)
@@ -30,9 +31,10 @@ trait TubiApi extends Serde {
     })
   }
 
-  def fetchAllContent()(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
+  def getContentByTag(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
     val request = GET(
-      uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=0&size=100&type=movie",
+      //todo -- clean up this uri parsing
+      Uri.fromString(s"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=$page&size=100&type=movie").getOrElse(uri""),
       Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
       Accept(MediaType.application.json)
     )
@@ -43,5 +45,33 @@ trait TubiApi extends Serde {
         case Right(value) => value.asRight[TubiError]
       }
     })
+  }
+
+
+  // business logic
+
+  def sortContentByTag(list: List[Video]): SortedContentResponse = {
+    // create list of all tag -> videos
+    val sortedValues = list.foldLeft(List.empty[(String, Video)])((acc, video) => {
+      acc ++ video.tags.map(tag => (tag -> video))
+
+    })
+      // use groupBy to combine tags
+      .groupBy((_._1)).map { case (tag, values) => tag -> values.map(_._2) }
+
+    SortedContentResponse(sortedValues)
+  }
+
+  def sortContentByFirstTag(list: List[Video]): SortedContentResponse = {
+    val sortedValues = list.foldLeft(Map.empty[String, List[Video]])((acc, video) => {
+
+      // get first tag for video, get the accumulator's value for that tag, combine the list and reinsert the key
+      video.tags.headOption.map { firstTag =>
+        acc ++ Map(firstTag -> (acc.getOrElse(firstTag, List.empty) ::: List(video)))
+      }.getOrElse(acc)
+
+    })
+
+    SortedContentResponse(sortedValues)
   }
 }
