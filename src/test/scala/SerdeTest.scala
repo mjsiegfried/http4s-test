@@ -1,4 +1,4 @@
-import DatabaseContract.Country
+import DataModel.Content
 import TestModel._
 import cats.data.EitherT
 import cats.effect.IO
@@ -15,14 +15,16 @@ object SerdeTest extends Serde {
     }
   }
 
-  val testCountryIsSymmetrical: EitherT[IO, TestError, Test] = {
-    val testCountry: Country = Country("TEST", "Test Land", 4, Some(10.5))
-    EitherT(Test("Test Country Serde is symmetrical", testParsingSymmetry(testCountry)).asRight[TestError].pure[IO])
+  val testContentIsSymmetrical: EitherT[IO, TestError, Test] = {
+    val testContent: Content = Content(
+      "", 1, "", 1, List.empty, "", "", "", 9, List.empty, "", ""
+    )
+    EitherT(Test("Test Content Serde is symmetrical", testParsingSymmetry(testContent)).asRight[TestError].pure[IO])
   }
 
   def tests(): EitherT[IO, TestError, TestSuite] = {
     List(
-      testCountryIsSymmetrical
+      testContentIsSymmetrical
     ).sequence.map(tests => TestSuite("SerdeTest", tests))
 
   }

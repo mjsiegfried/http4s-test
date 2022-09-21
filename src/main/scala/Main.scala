@@ -20,8 +20,6 @@ object Main extends IOApp with Serde {
         "postgres" // password
       )
 
-      implicit val dbContract: DatabaseContract = DatabaseContractImpl.jdbcDatabaseContract
-
       EmberServerBuilder
         .default[IO]
         .withHost(ipv4"0.0.0.0")

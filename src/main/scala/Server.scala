@@ -15,7 +15,7 @@ import org.typelevel.ci.CIStringSyntax
 
 object Server extends Serde {
 
-  def tubiService(client: Client[IO])(implicit databaseContract: DatabaseContract, logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
+  def tubiService(client: Client[IO])(implicit logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
       val request = GET(
         uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movie",

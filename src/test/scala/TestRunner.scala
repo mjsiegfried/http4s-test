@@ -1,8 +1,5 @@
-import DatabaseContract.Country
-import DatabaseError.UnknownDatabaseError
-import cats.data.EitherT
 import cats.effect.{ExitCode, IO, IOApp}
-import cats.implicits.{catsSyntaxApplicativeId, catsSyntaxEitherId, toTraverseOps}
+import cats.implicits.toTraverseOps
 import com.comcast.ip4s.IpLiteralSyntax
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
@@ -13,10 +10,6 @@ object TestRunner extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
 
     implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
-    implicit val dbContract: DatabaseContract = new DatabaseContract {
-      override def getCountry: EitherT[IO, DatabaseError.DatabaseError, DatabaseContract.Country] =
-        EitherT(UnknownDatabaseError("testDb").asLeft[Country].pure[IO])
-    }
 
     (for {
       client <- EmberClientBuilder.default[IO].build
