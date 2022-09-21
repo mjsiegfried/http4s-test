@@ -21,7 +21,7 @@ object Server extends Serde {
   def tubiService(client: Client[IO])(implicit logger: Logger[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
       val request = GET(
-        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movie",
+        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movi",
         Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
         Accept(MediaType.application.json)
       )
@@ -33,7 +33,7 @@ object Server extends Serde {
         }
       }
       retryingOnAllErrors[Response[IO]](
-        policy = RetryPolicies.limitRetriesByDelay(2.seconds, RetryPolicies.limitRetries[IO](5)),
+        policy =  RetryPolicies.limitRetriesByCumulativeDelay(6.seconds,RetryPolicies.constantDelay[IO](2.seconds)),
         onError = (err: Throwable, details: RetryDetails) => logger.info(s"Retrying request due to $err, Details: $details...")
       )(result)
 
