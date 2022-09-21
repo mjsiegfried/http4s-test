@@ -17,7 +17,7 @@ object TestRunner extends IOApp {
         .default[IO]
         .withHost(ipv4"0.0.0.0")
         .withPort(port"8080")
-        .withHttpApp(Server.tubiService(client))
+        .withHttpApp(Server.tubiService()(logger, client))
         .build
     } yield (client, server)).use { case (client, server) =>
 

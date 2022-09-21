@@ -52,4 +52,9 @@ object DataModel {
                     `type`: String
                   )
 
+  sealed trait TubiError {
+    def msg: String
+  }
+
+  case class UnknownTubiError(msg: String) extends TubiError
 }
