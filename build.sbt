@@ -5,6 +5,7 @@ ThisBuild / scalaVersion := "2.13.8"
 val http4sVersion = "0.23.16"
 val catsVersion = "3.3.14"
 val circeVersion = "0.14.2"
+val catsRetryVersion = "3.1.0"
 
 lazy val root = (project in file("."))
   .settings(
@@ -18,6 +19,7 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "log4cats-slf4j"   % "2.5.0",
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic"% circeVersion,
-      "io.circe" %% "circe-parser"% circeVersion
+      "io.circe" %% "circe-parser"% circeVersion,
+      "com.github.cb372" %% "cats-retry" % catsRetryVersion
     ),
   )

@@ -34,7 +34,7 @@ object Server extends Serde {
 
     case GET -> Root / "genre"  =>
       val request = GET(
-        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/genre/",
+        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/genre/action",
         Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
         Accept(MediaType.application.json)
       )
