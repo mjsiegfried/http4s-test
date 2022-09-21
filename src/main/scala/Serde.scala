@@ -4,8 +4,8 @@ import io.circe.{Decoder, Encoder}
 
 trait Serde {
 
-  implicit val ContentDecoder: Decoder[Video] = deriveDecoder[Video]
-  implicit val ContentEncoder: Encoder[Video] = deriveEncoder[Video]
+  implicit val VideoDecoder: Decoder[Video] = deriveDecoder[Video]
+  implicit val VideoEncoder: Encoder[Video] = deriveEncoder[Video]
   
   implicit val ContentResponseDecoder: Decoder[ContentResponse] = deriveDecoder[ContentResponse]
   implicit val ContentResponseEncoder: Encoder[ContentResponse] = deriveEncoder[ContentResponse]

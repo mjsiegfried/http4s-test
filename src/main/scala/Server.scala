@@ -12,6 +12,9 @@ import io.circe.syntax.EncoderOps
 import org.http4s.client.dsl.io._
 import org.http4s.headers._
 import org.typelevel.ci.CIStringSyntax
+import retry.{RetryDetails, RetryPolicies, retryingOnAllErrors}
+
+import scala.concurrent.duration.DurationInt
 
 object Server extends Serde {
 
@@ -29,10 +32,13 @@ object Server extends Serde {
           case Right(value) => Ok(value.items.asJson.noSpaces)
         }
       }
+      retryingOnAllErrors[Response[IO]](
+        policy = RetryPolicies.limitRetriesByDelay(2.seconds, RetryPolicies.limitRetries[IO](5)),
+        onError = (err: Throwable, details: RetryDetails) => logger.info(s"Retrying request due to $err, Details: $details...")
+      )(result)
 
-      result
 
-    case GET -> Root / "genre"  =>
+    case GET -> Root / "genre" =>
       val request = GET(
         uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/genre/action",
         Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
