@@ -26,7 +26,7 @@ object Main extends IOApp with Serde {
         .default[IO]
         .withHost(ipv4"0.0.0.0")
         .withPort(port"8080")
-        .withHttpApp(Server.helloWorldService(client))
+        .withHttpApp(Server.tubiService(client))
         .build
         .use(_ => IO.never)
         .as(ExitCode.Success)
