@@ -31,25 +31,14 @@ trait TubiApi extends Serde {
     })
   }
 
-  def getContentByTag(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, ContentResponse] = {
-    val request = GET(
-      //todo -- clean up this uri parsing
-      Uri.fromString(s"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?page=$page&size=100&type=movie").getOrElse(uri""),
-      Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
-      Accept(MediaType.application.json)
-    )
-
-    EitherT(client.expect[String](request).map { response =>
-      parser.parse(response).getOrElse(Json.Null).as[ContentResponse] match {
-        case Left(value) => UnknownTubiError(s"Failed to parse response: $response, error: $value").asLeft[ContentResponse]
-        case Right(value) => value.asRight[TubiError]
-      }
+  def fetchContentSortedByTag(page: Int)(implicit logger: Logger[IO], client: Client[IO]): EitherT[IO, TubiError, SortedContentResponse] = {
+    fetchContentByPage(page).map(contentResponse => {
+      sortContentByTag(contentResponse.items)
     })
   }
 
 
   // business logic
-
   def sortContentByTag(list: List[Video]): SortedContentResponse = {
     // create list of all tag -> videos
     val sortedValues = list.foldLeft(List.empty[(String, Video)])((acc, video) => {

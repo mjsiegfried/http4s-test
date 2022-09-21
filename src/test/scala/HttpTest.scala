@@ -10,7 +10,7 @@ object HttpTest {
   def testMainEndpoint(implicit client: Client[IO]): EitherT[IO, TestError, Test] = {
     val target = uri"http://localhost:8080/tubi"
     val result = client.expect[String](target)
-    val expectedValue = "Hello, Bob." //todo -- change this
+    val expectedValue = "Hello, Max." //todo -- change this
 
     EitherT(result.attempt.map {
       case Left(value) => TestFailed(s"Http Error: $value")
@@ -23,27 +23,10 @@ object HttpTest {
     }.map(result => Test("Test Main Endpoint", result).asRight[TestError]))
 
   }
-  def testGenreEndpoint(implicit client: Client[IO]): EitherT[IO, TestError, Test] = {
-    val target = uri"http://localhost:8080/genre"
-    val result = client.expect[String](target)
-    val expectedValue = "Hello, Bob." //todo -- change this
-
-    EitherT(result.attempt.map {
-      case Left(value) => TestFailed(s"Http Error: $value")
-      case Right(value) => if (value == expectedValue) {
-        TestPass()
-      }
-      else {
-        TestFailed(s"Returned value: $value did not match expected value: $expectedValue")
-      }
-    }.map(result => Test("Test Genre Endpoint", result).asRight[TestError]))
-
-  }
 
   def tests(implicit client: Client[IO]): EitherT[IO, TestError, TestSuite] = {
     List(
       testMainEndpoint,
-      testGenreEndpoint
     ).sequence.map(tests => TestSuite("HttpTest", tests))
 
   }

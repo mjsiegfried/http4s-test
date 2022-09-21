@@ -16,7 +16,7 @@ object Server extends TubiApi {
   def tubiService()(implicit logger: Logger[IO], client: Client[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
 
-      val apiResult = fetchContentByPage(0)
+      val apiResult = fetchContentSortedByTag(0)
         .map(contentResponse => Ok(contentResponse.asJson.noSpaces.pure[IO]))
         .leftMap(error => Ok(error.msg.pure[IO]))
         .merge
