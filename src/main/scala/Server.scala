@@ -1,5 +1,4 @@
-import DataModel.{ContentResponse, TubiError}
-import cats.data.{EitherT, Kleisli}
+import cats.data.Kleisli
 import cats.effect.IO
 import cats.implicits.catsSyntaxApplicativeId
 import io.circe.syntax.EncoderOps
