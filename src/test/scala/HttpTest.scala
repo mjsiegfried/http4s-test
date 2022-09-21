@@ -8,7 +8,7 @@ import org.http4s.implicits.http4sLiteralsSyntax
 object HttpTest {
 
   def testHelloEndpoint(implicit client: Client[IO]): EitherT[IO, TestError, Test] = {
-    val target = uri"http://localhost:8080/tubi/"
+    val target = uri"http://localhost:8080/tubi"
     val result = client.expect[String](target)
     val expectedValue = "Hello, Bob."
 

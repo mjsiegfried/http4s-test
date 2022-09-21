@@ -1,8 +1,10 @@
+import DataModel.ContentResponse
 import cats.effect.IO
 import org.http4s.dsl.io.{->, /, GET, InternalServerError, Ok, Root, _}
 import org.http4s.{AuthScheme, Credentials, Header, HttpRoutes, MediaType, Request, Response}
 import org.typelevel.log4cats.Logger
 import cats.data.Kleisli
+import io.circe.{Json, parser}
 import org.http4s.client.Client
 import org.http4s.dsl.io._
 import org.http4s.implicits.http4sLiteralsSyntax
@@ -31,22 +33,22 @@ object Server extends Serde {
     case GET -> Root / "hello" / name =>
       Ok(s"Hello, $name.")
 
-
-
-
-      // todo -- new stuff below
-
-    case GET -> Root / "tubi"=>
-      val target = uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movie"
-
-
+    // todo -- new stuff below
+    case GET -> Root / "tubi" =>
       val request = GET(
-        uri"https://my-lovely-api.com/",
+        uri"http://mock-content.interview.staging.sandbox.tubi.io/api/content/all?size=100&type=movie",
         Header.Raw(ci"x-api-key", "1bc682bd-0d0d-4c34-8c02-684ad7cd8bf9"),
         Accept(MediaType.application.json)
       )
 
-      val result = client.expect[String](request)
+      val result = client.expect[String](request).map { response =>
+        parser.parse(response).getOrElse(Json.Null).as[ContentResponse] match {
+          case Left(value) => s"Failed to parse response into class: $response Error: $value"
+          case Right(value) => value.asJson.noSpaces
+        }
+
+
+      }
 
       Ok(result)
   }.orNotFound
