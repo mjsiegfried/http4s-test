@@ -13,6 +13,7 @@ import scala.concurrent.duration.DurationInt
 
 object Server extends TubiApi {
 
+  //todo -- implement streaming responses off pagination
   def tubiService()(implicit logger: Logger[IO], client: Client[IO]): Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "tubi" =>
       val apiResult = fetchContentSortedByTag(0, "movie")

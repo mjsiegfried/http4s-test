@@ -1,5 +1,5 @@
 
-import DataModel.{ContentResponse, SortedContentResponse, TubiError, UnknownTubiError, Video}
+import DataModel.{Content, ContentResponse, SortedContentResponse, TubiError, UnknownTubiError, Video}
 import cats.data.EitherT
 import cats.effect.IO
 import cats.implicits.catsSyntaxEitherId
@@ -39,10 +39,10 @@ trait TubiApi extends Serde {
 
 
   // business logic
-  def sortContentByTag(list: List[Video]): SortedContentResponse = {
-    // create list of all tag -> videos
-    val sortedValues = list.foldLeft(List.empty[(String, Video)])((acc, video) => {
-      acc ++ video.tags.map(tag => (tag -> video))
+  def sortContentByTag(list: List[Content]): SortedContentResponse = {
+    // create list of all tag -> Contents
+    val sortedValues = list.foldLeft(List.empty[(String, Content)])((acc, Content) => {
+      acc ++ Content.tags.map(tag => (tag -> Content))
 
     })
       // use groupBy to combine tags
@@ -51,12 +51,12 @@ trait TubiApi extends Serde {
     SortedContentResponse(sortedValues)
   }
 
-  def sortContentByFirstTag(list: List[Video]): SortedContentResponse = {
-    val sortedValues = list.foldLeft(Map.empty[String, List[Video]])((acc, video) => {
+  def sortContentByFirstTag(list: List[Content]): SortedContentResponse = {
+    val sortedValues = list.foldLeft(Map.empty[String, List[Content]])((acc, content) => {
 
       // get first tag for video, get the accumulator's value for that tag, combine the list and reinsert the key
-      video.tags.headOption.map { firstTag =>
-        acc ++ Map(firstTag -> (acc.getOrElse(firstTag, List.empty) ::: List(video)))
+      content.tags.headOption.map { firstTag =>
+        acc ++ Map(firstTag -> (acc.getOrElse(firstTag, List.empty) ::: List(content)))
       }.getOrElse(acc)
 
     })

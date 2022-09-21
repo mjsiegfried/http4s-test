@@ -1,8 +1,10 @@
 object DataModel {
 
-  case class ContentResponse(count: Int, items: List[Video])
+  case class ContentResponse(count: Int, items: List[Content])
 
-  sealed trait Content
+  sealed trait Content {
+    def tags: List[String]
+  }
 
   case class Video(
                     description: String,
@@ -25,14 +27,13 @@ object DataModel {
                      genre: String,
                      language: String,
                      title: String,
-                     thumbnail: String,
                      `type`: String,
-                     score: String,
+                     score: Option[Score],
                      policy: String,
                      rating: String,
                      release_year: Int,
                      tags: List[String],
-                     seasons: List[Season],
+                     seasons: Option[List[Season]],
                    ) extends Content
 
   case class Season(
@@ -44,9 +45,11 @@ object DataModel {
                      episodes: List[Video]
                    )
 
-  case class SortedContentResponse(content: Map[String, List[Video]])
+  case class Score(imdb: String, rotten_tomatoes: String)
 
-  case class SortedContent(tag: String, items: List[Video])
+  case class SortedContentResponse(content: Map[String, List[Content]])
+
+  case class SortedContent(tag: String, items: List[Content])
 
   sealed trait TubiError {
     def msg: String
