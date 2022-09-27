@@ -29,8 +29,7 @@ object TestRunner extends IOApp {
     } yield (client, server)).use { case (client, server) =>
 
       val allTestSuites = List(
-        SerdeTest.tests(),
-        HttpTest.tests(client)
+        StoreLogTest.tests()
       )
 
       allTestSuites
